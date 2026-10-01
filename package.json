@@ -1,7 +1,7 @@
 {
   "name": "loopframe",
   "productName": "Loopframe",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Fullscreen exhibition player that loops websites, including camera-based installations.",
   "main": "dist/main/index.js",

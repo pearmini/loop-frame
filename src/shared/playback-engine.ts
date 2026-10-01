@@ -62,11 +62,7 @@ export function reduce(state: EngineState, event: EngineEvent): ReduceResult {
       if (!sameGeneration(state, event.generation) || state.phase !== 'loading') return none(state);
       return {
         state: { ...state, phase: 'showing', paused: false },
-        effects: [
-          { type: 'clear-timers' },
-          { type: 'clear-error' },
-          { type: 'start-display-timer', generation: state.generation },
-        ],
+        effects: showEffects(state),
       };
     case 'load-failed':
     case 'load-timeout':
@@ -74,6 +70,7 @@ export function reduce(state: EngineState, event: EngineEvent): ReduceResult {
       return fail(state);
     case 'display-elapsed':
       if (!sameGeneration(state, event.generation) || state.phase !== 'showing') return none(state);
+      if (state.siteCount <= 1) return none(state);
       return beginLoad(state, nextIndex(state.index, state.siteCount));
     case 'error-elapsed':
       if (!sameGeneration(state, event.generation) || state.phase !== 'error') return none(state);
@@ -96,10 +93,10 @@ export function reduce(state: EngineState, event: EngineEvent): ReduceResult {
         effects: [{ type: 'resume-timer' }],
       };
     case 'next':
-      if (state.phase === 'idle') return none(state);
+      if (state.phase === 'idle' || state.siteCount <= 1) return none(state);
       return beginLoad(state, nextIndex(state.index, state.siteCount));
     case 'previous':
-      if (state.phase === 'idle') return none(state);
+      if (state.phase === 'idle' || state.siteCount <= 1) return none(state);
       return beginLoad(state, previousIndex(state.index, state.siteCount));
     case 'exit':
       if (state.phase === 'idle') return none(state);
@@ -115,6 +112,15 @@ export function reduce(state: EngineState, event: EngineEvent): ReduceResult {
     default:
       return none(state);
   }
+}
+
+function showEffects(state: EngineState): EngineEffect[] {
+  const effects: EngineEffect[] = [
+    { type: 'clear-timers' },
+    { type: 'clear-error' },
+  ];
+  if (state.siteCount > 1) effects.push({ type: 'start-display-timer', generation: state.generation });
+  return effects;
 }
 
 function beginLoad(state: EngineState, index: number): ReduceResult {

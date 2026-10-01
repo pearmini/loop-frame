@@ -60,6 +60,22 @@ describe('playback engine', () => {
     assert.notEqual(stale.state.generation, firstGeneration);
   });
 
+  it('keeps a single website open instead of reloading it', () => {
+    const state = showing(createEngine(1));
+    const elapsed = reduce(state, { type: 'display-elapsed', generation: state.generation });
+    assert.equal(elapsed.state.phase, 'showing');
+    assert.equal(elapsed.state.index, 0);
+    assert.equal(elapsed.state.generation, state.generation);
+    assert.equal(elapsed.effects.length, 0);
+    assert.equal(reduce(state, { type: 'next' }).effects.length, 0);
+    assert.equal(reduce(state, { type: 'previous' }).effects.length, 0);
+    const loaded = reduce(reduce(createEngine(1), { type: 'start' }).state, {
+      type: 'loaded',
+      generation: 1,
+    });
+    assert.equal(effectTypes(loaded.effects).includes('start-display-timer'), false);
+  });
+
   it('wraps next and previous and closes the current view', () => {
     let state = showing(createEngine(3));
     const next = reduce(state, { type: 'next' });

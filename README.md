@@ -10,7 +10,9 @@ A gallery browser asks for permission, shows its own interface, and needs someon
 
 ## How to use
 
-Install [Node.js](https://nodejs.org/) 20 or newer, then:
+Download the latest installer from [GitHub Releases](https://github.com/pearmini/loop-frame/releases/latest). On a Mac, open the disk image and move Loopframe into Applications. The first time you open an unsigned copy, right-click Loopframe and choose Open.
+
+To run it from this project instead, install [Node.js](https://nodejs.org/) 20 or newer, then:
 
 ```bash
 npm install

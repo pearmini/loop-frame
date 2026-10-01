@@ -1,0 +1,30 @@
+{
+  "name": "loopframe",
+  "productName": "Loopframe",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fullscreen exhibition player that loops websites, including camera-based installations.",
+  "main": "dist/main/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit && node scripts/build.mjs",
+    "dev": "npm run build && electron .",
+    "start": "npm run build && electron .",
+    "test": "tsc --noEmit && node scripts/test.mjs",
+    "test:self": "npm run build && electron . --self-test",
+    "pack": "npm run build && electron-builder --dir",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:linux": "npm run build && electron-builder --linux"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "electron": "^44.5.0",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

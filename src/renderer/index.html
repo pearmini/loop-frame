@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Loopframe</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <p class="mark">Loopframe</p>
+        <h1>Exhibition playback</h1>
+        <p class="lede">Play a list of websites in order, full screen, and keep camera projects moving without a person at the keyboard.</p>
+      </header>
+
+      <div id="camera-banner" class="banner" hidden>
+        <p id="camera-message"></p>
+        <button id="camera-retry" type="button" hidden>Retry camera access</button>
+      </div>
+      <p id="startup-status" class="status" hidden></p>
+
+      <main>
+        <section>
+          <div class="section-head">
+            <h2>Websites</h2>
+            <button id="add-site" type="button" class="text-button">Add website</button>
+          </div>
+          <ul id="sites"></ul>
+          <p id="empty-sites" class="help">Add the addresses this installation should cycle through.</p>
+        </section>
+
+        <section>
+          <h2>Timing</h2>
+          <label class="field">
+            <span>Default display duration</span>
+            <span class="duration-field">
+              <input id="default-duration" type="text" inputmode="numeric" autocomplete="off" aria-describedby="duration-help" />
+              <span>seconds</span>
+            </span>
+          </label>
+          <p id="duration-help" class="help">Each website uses this duration unless a row sets its own. The clock starts when the page finishes loading.</p>
+          <p id="default-duration-error" class="field-error"></p>
+        </section>
+
+        <section>
+          <h2>Startup</h2>
+          <label class="check">
+            <input id="start-on-login" type="checkbox" />
+            <span>Start loop when computer starts</span>
+          </label>
+          <p class="help">This opens Loopframe when you log in to this account. It does not start the computer or run before anyone logs in.</p>
+        </section>
+
+        <section>
+          <h2>Camera</h2>
+          <p class="help">Loopframe allows the camera only for the website addresses in this list. Other permissions stay off. A website that asks for the microphone as well is refused unless you enable it here.</p>
+          <label class="check">
+            <input id="allow-microphone" type="checkbox" />
+            <span>Allow microphone for listed websites</span>
+          </label>
+        </section>
+      </main>
+
+      <footer>
+        <p id="form-error" class="field-error"></p>
+        <button id="play" type="button" class="play">Play</button>
+        <button id="play-anyway" type="button" class="ghost" hidden>Play without camera</button>
+      </footer>
+    </div>
+    <script src="./settings.js"></script>
+  </body>
+</html>

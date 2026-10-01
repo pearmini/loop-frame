@@ -1,0 +1,216 @@
+:root {
+  color-scheme: dark;
+  --bg: #141311;
+  --raised: #221f1b;
+  --line: rgba(243, 239, 230, 0.14);
+  --text: #f4f0e6;
+  --muted: #aaa396;
+  --amber: #e2a15a;
+  --ink: #24180c;
+  --danger: #f0a090;
+  --danger-bg: #3c2622;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  min-height: 100vh;
+}
+
+button, input { font: inherit; color: inherit; }
+
+.shell {
+  width: min(840px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 28px 0 36px;
+}
+
+body.darwin .shell { padding-top: 42px; }
+
+header h1 {
+  margin: 8px 0 0;
+  font-size: 40px;
+  font-weight: 620;
+  letter-spacing: -0.04em;
+}
+
+.mark {
+  margin: 0;
+  color: var(--amber);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.lede, .help, .status {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.lede { max-width: 58ch; margin: 12px 0 0; }
+
+.banner, .status {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--raised);
+}
+
+.banner p { margin: 0; line-height: 1.45; }
+
+#camera-retry, .text-button, .ghost, .icon-button, .play {
+  border: 0;
+  cursor: pointer;
+}
+
+#camera-retry, .ghost {
+  margin-top: 12px;
+  background: transparent;
+  color: var(--amber);
+  padding: 0;
+}
+
+.text-button {
+  background: transparent;
+  color: var(--amber);
+  padding: 0;
+}
+
+main { display: grid; gap: 28px; margin-top: 28px; }
+
+section h2, .section-head h2 {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+#sites {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.site {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) 108px auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--raised);
+}
+
+.site.invalid { border-color: rgba(240, 160, 144, 0.7); }
+
+.handle {
+  width: 28px;
+  text-align: center;
+  color: var(--muted);
+  cursor: grab;
+  user-select: none;
+}
+
+.nudge { display: grid; }
+
+.icon-button {
+  width: 28px;
+  height: 22px;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.icon-button:hover, .text-button:hover, #camera-retry:hover, .ghost:hover { color: var(--text); }
+
+input[type="text"], input[type="url"] {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #141311;
+  outline: none;
+}
+
+input:focus, button:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.row-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--danger);
+  min-height: 0;
+}
+
+.field { display: grid; gap: 8px; margin-top: 14px; }
+
+.duration-field, .check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.duration-field input { width: 120px; }
+
+.check { margin-top: 12px; }
+
+.check input { width: 18px; height: 18px; accent-color: var(--amber); }
+
+.field-error { min-height: 1.2em; margin: 8px 0 0; color: var(--danger); }
+
+footer {
+  position: sticky;
+  bottom: 0;
+  padding: 18px 0 8px;
+  background: linear-gradient(to top, var(--bg) 70%, rgba(20, 19, 17, 0));
+}
+
+.play {
+  width: 100%;
+  height: 58px;
+  border-radius: 14px;
+  background: var(--amber);
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.play:disabled { opacity: 0.38; cursor: not-allowed; }
+
+.ghost {
+  display: block;
+  width: 100%;
+  height: 42px;
+  margin-top: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+@media (max-width: 720px) {
+  .site { grid-template-columns: auto auto minmax(0, 1fr) auto; }
+  .site-duration { grid-column: 3 / 4; }
+}

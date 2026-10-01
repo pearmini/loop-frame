@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron';
 import { localWebPreferences } from '../shared/web-preferences';
-import { distPath, settingsHtmlPath } from './paths';
+import { appIconPath, distPath, settingsHtmlPath } from './paths';
 
 export function createMainWindow(): BrowserWindow {
   const window = new BrowserWindow({
@@ -11,6 +11,7 @@ export function createMainWindow(): BrowserWindow {
     show: false,
     backgroundColor: '#ffffff',
     title: 'Loopframe',
+    icon: appIconPath() ?? undefined,
     autoHideMenuBar: true,
     webPreferences: localWebPreferences(distPath('preload', 'settings.js')),
   });

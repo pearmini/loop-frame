@@ -2,7 +2,6 @@ import { build } from 'esbuild';
 import { cp, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { writeIcon } from './write-icon.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
@@ -17,7 +16,6 @@ const shared = {
 };
 
 await mkdir(dist, { recursive: true });
-await writeIcon(path.join(root, 'build', 'icon.png'));
 
 await build({
   ...shared,

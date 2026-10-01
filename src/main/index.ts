@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import { app, nativeImage } from 'electron';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -6,7 +6,7 @@ import { shouldAutoplay } from '../shared/launch';
 import { START_LOOP_ARG, DEFAULT_TIMING } from '../shared/types';
 import { registerIpc, startPlayback, type AppServices } from './ipc';
 import { syncLoginItem } from './login-item';
-import { settingsFilePath } from './paths';
+import { dockIconPath, settingsFilePath } from './paths';
 import { PlaybackController } from './playback';
 import { installPermissionHandlers } from './permissions';
 import { readSettingsFile } from './settings-store';
@@ -35,6 +35,8 @@ if (!selfTest && !app.requestSingleInstanceLock()) {
 async function boot(): Promise<void> {
   if (process.platform === 'win32') app.setAppUserModelId('com.loopframe.app');
   app.setName('Loopframe');
+  const icon = dockIconPath();
+  if (icon) app.dock?.setIcon(nativeImage.createFromPath(icon));
 
   const settingsFile = settingsFilePath();
   installPermissionHandlers(() => readSettingsFile(settingsFile));

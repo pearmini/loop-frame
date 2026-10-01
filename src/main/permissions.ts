@@ -28,6 +28,7 @@ export function installPermissionHandlers(getSettings: () => Settings): void {
       requestingOrigin: origin,
       listedOrigins: listedOrigins(settings.sites),
       mediaKinds: mediaKindsFrom(mediaTypes),
+      allowCamera: settings.allowCamera,
       allowMicrophone: settings.allowMicrophone,
     });
     permissionLog.push({
@@ -52,6 +53,7 @@ export function installPermissionHandlers(getSettings: () => Settings): void {
       requestingOrigin: origin,
       listedOrigins: listedOrigins(settings.sites),
       mediaKinds: mediaKindsFrom(details.mediaType ? [details.mediaType] : undefined),
+      allowCamera: settings.allowCamera,
       allowMicrophone: settings.allowMicrophone,
     });
     permissionLog.push({

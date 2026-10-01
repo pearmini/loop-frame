@@ -19,6 +19,7 @@ export interface Settings {
   version: typeof SETTINGS_VERSION;
   defaultDurationSeconds: number;
   startOnLogin: boolean;
+  allowCamera: boolean;
   allowMicrophone: boolean;
   sites: Site[];
 }

@@ -1,4 +1,4 @@
-import { SETTINGS_VERSION, type Settings, type Site } from '../shared/types';
+import { DEFAULT_DURATION_SECONDS, SETTINGS_VERSION, type Settings, type Site } from '../shared/types';
 import { parseDurationInput, playBlockers, validateUrl } from '../shared/validate';
 
 interface Row {
@@ -10,9 +10,8 @@ interface Row {
 const sitesElement = required<HTMLUListElement>('#sites');
 const emptySites = required<HTMLElement>('#empty-sites');
 const addButton = required<HTMLButtonElement>('#add-site');
-const defaultDurationInput = required<HTMLInputElement>('#default-duration');
-const defaultDurationError = required<HTMLElement>('#default-duration-error');
 const startOnLoginInput = required<HTMLInputElement>('#start-on-login');
+const allowCameraInput = required<HTMLInputElement>('#allow-camera');
 const allowMicrophoneInput = required<HTMLInputElement>('#allow-microphone');
 const playButton = required<HTMLButtonElement>('#play');
 const playAnywayButton = required<HTMLButtonElement>('#play-anyway');
@@ -23,27 +22,23 @@ const cameraRetry = required<HTMLButtonElement>('#camera-retry');
 const startupStatus = required<HTMLElement>('#startup-status');
 
 let rows: Row[] = [];
+let fallbackDuration = DEFAULT_DURATION_SECONDS;
 let saveTimer = 0;
 let saveToken = 0;
-let dragIndex = -1;
-
-if (window.loopframe.platform === 'darwin') document.body.classList.add('darwin');
 
 addButton.addEventListener('click', () => {
-  rows.push({ id: newId(), url: '', durationText: '' });
+  rows.push({ id: newId(), url: '', durationText: String(fallbackDuration) });
   renderRows();
   const inputs = sitesElement.querySelectorAll<HTMLInputElement>('.site-url');
   inputs[inputs.length - 1]?.focus();
   scheduleSave();
 });
 
-defaultDurationInput.addEventListener('input', () => {
-  showDefaultDurationError();
-  updatePlayState();
-  scheduleSave();
+startOnLoginInput.addEventListener('change', () => {
+  void saveNow();
 });
 
-startOnLoginInput.addEventListener('change', () => {
+allowCameraInput.addEventListener('change', () => {
   void saveNow();
 });
 
@@ -61,27 +56,6 @@ playAnywayButton.addEventListener('click', () => {
 
 cameraRetry.addEventListener('click', () => {
   void refreshCamera(true);
-});
-
-sitesElement.addEventListener('dragstart', (event) => {
-  const site = siteRow(event.target);
-  if (!site) return;
-  dragIndex = Number(site.dataset.index);
-  event.dataTransfer?.setData('text/plain', String(dragIndex));
-  if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
-});
-
-sitesElement.addEventListener('dragover', (event) => {
-  if (!siteRow(event.target)) return;
-  event.preventDefault();
-});
-
-sitesElement.addEventListener('drop', (event) => {
-  event.preventDefault();
-  const site = siteRow(event.target);
-  if (!site || dragIndex < 0) return;
-  moveRow(dragIndex, Number(site.dataset.index));
-  dragIndex = -1;
 });
 
 window.loopframe.onPlaybackStopped(() => {
@@ -106,10 +80,11 @@ function applySettings(settings: Settings): void {
   rows = settings.sites.map((site) => ({
     id: site.id,
     url: site.url,
-    durationText: site.durationSeconds === null ? '' : String(site.durationSeconds),
+    durationText: String(site.durationSeconds ?? settings.defaultDurationSeconds),
   }));
-  defaultDurationInput.value = String(settings.defaultDurationSeconds);
+  fallbackDuration = settings.defaultDurationSeconds;
   startOnLoginInput.checked = settings.startOnLogin;
+  allowCameraInput.checked = settings.allowCamera;
   allowMicrophoneInput.checked = settings.allowMicrophone;
 }
 
@@ -117,7 +92,6 @@ function renderRows(): void {
   sitesElement.replaceChildren();
   rows.forEach((row, index) => sitesElement.append(createRow(row, index)));
   emptySites.hidden = rows.length > 0;
-  showDefaultDurationError();
   updatePlayState();
 }
 
@@ -125,19 +99,6 @@ function createRow(row: Row, index: number): HTMLLIElement {
   const item = document.createElement('li');
   item.className = 'site';
   item.dataset.index = String(index);
-
-  const handle = document.createElement('div');
-  handle.className = 'handle';
-  handle.draggable = true;
-  handle.textContent = '⋮⋮';
-  handle.title = 'Drag to reorder';
-
-  const nudge = document.createElement('div');
-  nudge.className = 'nudge';
-  nudge.append(
-    iconButton('↑', `Move website ${index + 1} up`, () => moveRow(index, index - 1)),
-    iconButton('↓', `Move website ${index + 1} down`, () => moveRow(index, index + 1)),
-  );
 
   const url = document.createElement('input');
   url.className = 'site-url';
@@ -159,9 +120,10 @@ function createRow(row: Row, index: number): HTMLLIElement {
   duration.type = 'text';
   duration.inputMode = 'numeric';
   duration.autocomplete = 'off';
-  duration.placeholder = 'Default';
+  duration.placeholder = 'seconds';
+  duration.title = 'How long to show this website, in seconds. The clock starts when the page finishes loading.';
   duration.value = row.durationText;
-  duration.setAttribute('aria-label', `Website ${index + 1} duration in seconds`);
+  duration.setAttribute('aria-label', `Website ${index + 1} display time in seconds`);
   duration.addEventListener('input', () => {
     row.durationText = duration.value;
     showRowError(item, row);
@@ -169,16 +131,22 @@ function createRow(row: Row, index: number): HTMLLIElement {
     scheduleSave();
   });
 
-  const remove = iconButton('Remove', `Remove website ${index + 1}`, () => {
-    rows.splice(index, 1);
-    renderRows();
-    scheduleSave();
-  });
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+  actions.append(
+    iconButton('↑', `Move website ${index + 1} up`, () => moveRow(index, index - 1)),
+    iconButton('↓', `Move website ${index + 1} down`, () => moveRow(index, index + 1)),
+    iconButton('×', `Remove website ${index + 1}`, () => {
+      rows.splice(index, 1);
+      renderRows();
+      scheduleSave();
+    }),
+  );
 
   const error = document.createElement('p');
   error.className = 'row-error';
 
-  item.append(handle, nudge, url, duration, remove, error);
+  item.append(url, duration, actions, error);
   showRowError(item, row);
   return item;
 }
@@ -186,14 +154,11 @@ function createRow(row: Row, index: number): HTMLLIElement {
 function showRowError(item: HTMLElement, row: Row): void {
   const error = item.querySelector('.row-error');
   if (!error) return;
-  const message = validateUrl(row.url) ?? parseDurationInput(row.durationText).error;
+  const parsed = parseDurationInput(row.durationText);
+  const durationMessage = parsed.error ?? (parsed.value === null ? 'Enter how many seconds to show this website.' : null);
+  const message = validateUrl(row.url) ?? durationMessage;
   error.textContent = message ?? '';
   item.classList.toggle('invalid', Boolean(message));
-}
-
-function showDefaultDurationError(): void {
-  const parsed = parseDurationInput(defaultDurationInput.value);
-  defaultDurationError.textContent = parsed.value === null && !parsed.error ? 'Enter a default duration.' : (parsed.error ?? '');
 }
 
 function moveRow(from: number, to: number): void {
@@ -233,23 +198,20 @@ async function saveNow(): Promise<boolean> {
 }
 
 function draftSettings(): { settings: Settings | null; error: string | null } {
-  const duration = parseDurationInput(defaultDurationInput.value);
-  if (duration.error || duration.value === null) {
-    return { settings: null, error: duration.error ?? 'Enter a default duration.' };
-  }
   const sites: Site[] = [];
   for (const row of rows) {
     const parsed = parseDurationInput(row.durationText);
-    if (parsed.error || (row.durationText.trim() && parsed.value === null)) {
-      return { settings: null, error: parsed.error ?? 'Fix the highlighted durations.' };
+    if (parsed.error || parsed.value === null) {
+      return { settings: null, error: parsed.error ?? 'Enter how many seconds to show each website.' };
     }
     sites.push({ id: row.id, url: row.url.trim(), durationSeconds: parsed.value });
   }
   return {
     settings: {
       version: SETTINGS_VERSION,
-      defaultDurationSeconds: duration.value,
+      defaultDurationSeconds: fallbackDuration,
       startOnLogin: startOnLoginInput.checked,
+      allowCamera: allowCameraInput.checked,
       allowMicrophone: allowMicrophoneInput.checked,
       sites,
     },
@@ -327,12 +289,6 @@ function iconButton(label: string, aria: string, onClick: () => void): HTMLButto
   button.setAttribute('aria-label', aria);
   button.addEventListener('click', onClick);
   return button;
-}
-
-function siteRow(target: EventTarget | null): HTMLElement | null {
-  if (!(target instanceof HTMLElement)) return null;
-  const site = target.closest('.site');
-  return site instanceof HTMLElement ? site : null;
 }
 
 function newId(): string {

@@ -5,6 +5,7 @@ export interface PermissionDecisionInput {
   requestingOrigin: string | null;
   listedOrigins: readonly string[];
   mediaKinds: readonly MediaKind[];
+  allowCamera: boolean;
   allowMicrophone: boolean;
 }
 
@@ -57,7 +58,7 @@ export function decidePermission(input: PermissionDecisionInput): boolean {
 
   if (!mediaPermission) return false;
   if (audioRequested && !input.allowMicrophone) return false;
-  if (videoRequested) return true;
-  if (audioRequested) return true;
+  if (videoRequested && !input.allowCamera) return false;
+  if (videoRequested || audioRequested) return true;
   return false;
 }

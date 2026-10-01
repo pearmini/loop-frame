@@ -46,14 +46,17 @@ export function registerIpc(services: AppServices): void {
 
   ipcMain.handle('camera:status', (event) => {
     assertSender(event, settingsHtmlPath());
-    return readCameraStatus(readSettingsFile(services.settingsFile).allowMicrophone);
+    return readCameraStatus(readSettingsFile(services.settingsFile));
   });
 
   ipcMain.handle('camera:request', async (event) => {
     assertSender(event, settingsHtmlPath());
     const settings = readSettingsFile(services.settingsFile);
-    if (process.platform === 'darwin') await ensureMediaAccess('camera');
-    return readCameraStatus(settings.allowMicrophone);
+    if (process.platform === 'darwin') {
+      if (settings.allowCamera) await ensureMediaAccess('camera');
+      if (settings.allowMicrophone) await ensureMediaAccess('microphone');
+    }
+    return readCameraStatus(settings);
   });
 
   ipcMain.handle('startup:status', (event) => {
@@ -78,14 +81,16 @@ export async function startPlayback(
   if (blockers.length > 0) return { ok: false, error: blockers[0] ?? 'Add a website before playing.', cameraDenied: false };
 
   if (process.platform === 'darwin') {
-    const camera = await ensureMediaAccess('camera');
-    const denied = camera === 'denied' || camera === 'restricted' || camera === 'unknown';
-    if (mode === 'manual' && denied && !request.allowWithoutCamera) {
-      return {
-        ok: false,
-        error: cameraGuidance(camera, app.isPackaged) ?? 'Camera access is unavailable.',
-        cameraDenied: true,
-      };
+    if (settings.allowCamera) {
+      const camera = await ensureMediaAccess('camera');
+      const denied = camera === 'denied' || camera === 'restricted' || camera === 'unknown';
+      if (mode === 'manual' && denied && !request.allowWithoutCamera) {
+        return {
+          ok: false,
+          error: cameraGuidance(camera, app.isPackaged) ?? 'Camera access is unavailable.',
+          cameraDenied: true,
+        };
+      }
     }
     if (settings.allowMicrophone) await ensureMediaAccess('microphone');
   }

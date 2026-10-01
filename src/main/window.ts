@@ -9,10 +9,8 @@ export function createMainWindow(): BrowserWindow {
     minWidth: 760,
     minHeight: 640,
     show: false,
-    backgroundColor: '#141311',
+    backgroundColor: '#ffffff',
     title: 'Loopframe',
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-    trafficLightPosition: { x: 18, y: 18 },
     autoHideMenuBar: true,
     webPreferences: localWebPreferences(distPath('preload', 'settings.js')),
   });

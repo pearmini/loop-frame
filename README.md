@@ -24,11 +24,11 @@ npm run test:self
 
 ## Settings
 
-- Add, remove, and reorder websites. Drag a row or use the arrow buttons.
-- Set a default display duration in seconds. Leave a row’s duration blank to use that default, or type a number to override it.
+- Add, remove, and reorder websites with the arrow buttons.
+- Set how many seconds to show each website. The clock starts when that page finishes loading.
 - Addresses must be full `https://` or `http://` URLs. The row explains what to fix, and Play stays off until every row is valid.
 - **Start loop when computer starts** registers Loopframe to open when you log in. Turning it off removes that registration.
-- **Allow microphone for listed websites** is off unless you enable it. Camera access for listed sites does not turn the microphone on.
+- **Camera** is on for listed websites unless you turn it off. **Microphone** stays off unless you turn it on.
 - Play saves the list and opens the loop in full screen.
 - Settings are stored in the app’s user-data folder and restored the next time Loopframe opens.
 
@@ -46,9 +46,9 @@ Pages are expected to start their own interaction. Loopframe does not click a we
 
 A saved address may redirect while it is first opening, and that destination is shown. Camera access is not extended to a host that is not itself in the list. Later navigations have to stay on a saved origin, and new windows are blocked.
 
-## Camera
+## Permission
 
-Loopframe answers website permission requests itself. Video is allowed only when the requesting frame’s origin is one of the saved website origins. Microphone is allowed only when the setting is on. A page that asks for both at once is refused while the microphone setting is off, because Electron can only allow or deny that request as a whole. Geolocation, notifications, screen capture, and other permissions are denied.
+Loopframe answers website permission requests itself. Camera and microphone are allowed only when their checkboxes are on, and only when the requesting frame’s origin is one of the saved website origins. A page that asks for both at once is refused unless both checkboxes are on, because Electron can only allow or deny that request as a whole. Geolocation, notifications, screen capture, and other permissions are denied.
 
 This does not override the operating system. On macOS, the first Play asks for camera access if the system has not decided yet. After that, listed websites should not show their own camera popups. If macOS has denied access, Loopframe explains how to turn it on:
 

@@ -305,6 +305,7 @@ function settings(sites: Settings['sites']): Settings {
     version: SETTINGS_VERSION,
     defaultDurationSeconds: 30,
     startOnLogin: false,
+    allowCamera: true,
     allowMicrophone: false,
     sites,
   };

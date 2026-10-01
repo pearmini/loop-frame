@@ -11,6 +11,7 @@ const sample: Settings = {
   version: SETTINGS_VERSION,
   defaultDurationSeconds: 12,
   startOnLogin: true,
+  allowCamera: true,
   allowMicrophone: false,
   sites: [
     { id: 'one', url: 'https://One.Example/a', durationSeconds: null },
@@ -40,6 +41,11 @@ describe('settings persistence', () => {
     assert.deepEqual(readSettingsFile(corrupt), defaultSettings());
     fs.writeFileSync(corrupt, JSON.stringify({ version: 2 }));
     assert.deepEqual(readSettingsFile(corrupt), defaultSettings());
+  });
+
+  it('keeps camera allowed when an older file has no camera choice', () => {
+    const { allowCamera: _allowCamera, ...older } = sample;
+    assert.equal(parseSettings(older).allowCamera, true);
   });
 
   it('rejects structurally invalid settings', () => {

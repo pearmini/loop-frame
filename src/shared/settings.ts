@@ -15,6 +15,7 @@ export function defaultSettings(): Settings {
     version: SETTINGS_VERSION,
     defaultDurationSeconds: DEFAULT_DURATION_SECONDS,
     startOnLogin: false,
+    allowCamera: true,
     allowMicrophone: false,
     sites: [],
   };
@@ -31,6 +32,8 @@ export function parseSettings(value: unknown): Settings {
     throw new Error('The default duration is not a valid number of seconds.');
   }
   if (typeof value.startOnLogin !== 'boolean') throw new Error('The startup choice is missing.');
+  const allowCamera = value.allowCamera === undefined ? true : value.allowCamera;
+  if (typeof allowCamera !== 'boolean') throw new Error('The camera choice is missing.');
   if (typeof value.allowMicrophone !== 'boolean') throw new Error('The microphone choice is missing.');
   if (!Array.isArray(value.sites)) throw new Error('The website list is missing.');
   if (value.sites.length > MAX_SITES) throw new Error(`Only ${MAX_SITES} websites can be saved.`);
@@ -43,6 +46,7 @@ export function parseSettings(value: unknown): Settings {
     version: SETTINGS_VERSION,
     defaultDurationSeconds: value.defaultDurationSeconds,
     startOnLogin: value.startOnLogin,
+    allowCamera,
     allowMicrophone: value.allowMicrophone,
     sites,
   };

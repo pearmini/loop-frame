@@ -12,6 +12,7 @@ function decide(
     requestingOrigin: 'https://install.example/room',
     listedOrigins: listed,
     mediaKinds: ['video'],
+    allowCamera: true,
     allowMicrophone: false,
     ...overrides,
   });
@@ -34,6 +35,12 @@ describe('camera permission policy', () => {
       }),
       false,
     );
+  });
+
+  it('denies camera access unless it is enabled', () => {
+    assert.equal(decide({ allowCamera: false }), false);
+    assert.equal(decide({ permission: 'camera', mediaKinds: ['unknown'], allowCamera: false }), false);
+    assert.equal(decide({ mediaKinds: ['video', 'audio'], allowCamera: false, allowMicrophone: true }), false);
   });
 
   it('denies microphone access unless it is enabled', () => {

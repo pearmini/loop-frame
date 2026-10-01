@@ -1,10 +1,6 @@
 import { START_LOOP_ARG } from './types';
 
-export const LOGIN_LIMITATION =
-  'This opens Loopframe when you log in to this account. It does not start the computer or run before anyone logs in.';
-
-export const UNPACKAGED_LOGIN_MESSAGE =
-  'The choice is saved on this computer. Login launch registers after Loopframe is installed. A development checkout is left unchanged so it does not register the Electron shell.';
+export const LOGIN_LIMITATION = 'This opens Loopframe when you log in to this account.';
 
 export const LINUX_PACKAGED_REQUIRED =
   'Install the packaged Loopframe app to open it when you log in. A development checkout does not have a stable launch command.';
@@ -24,7 +20,7 @@ export function shouldAutoplay(input: AutoplayInput): boolean {
 }
 
 export type LoginPlan =
-  | { kind: 'skip'; message: string }
+  | { kind: 'skip'; message: string | null }
   | { kind: 'electron'; openAtLogin: boolean; args?: string[] }
   | { kind: 'xdg'; enabled: boolean };
 
@@ -40,7 +36,7 @@ export function planLoginRegistration(input: {
   if (input.platform !== 'darwin' && input.platform !== 'win32') {
     return { kind: 'skip', message: 'This system cannot register Loopframe to open at login.' };
   }
-  if (!input.packaged) return { kind: 'skip', message: UNPACKAGED_LOGIN_MESSAGE };
+  if (!input.packaged) return { kind: 'skip', message: null };
   if (input.platform === 'win32') {
     return {
       kind: 'electron',

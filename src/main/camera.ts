@@ -2,12 +2,12 @@ import { app, systemPreferences } from 'electron';
 import { cameraGuidance, microphoneGuidance } from '../shared/camera-guidance';
 import type { CameraStatus, MediaAccessStatus } from '../shared/types';
 
-export function readCameraStatus(allowMicrophone: boolean): CameraStatus {
+export function readCameraStatus(options: { allowCamera: boolean; allowMicrophone: boolean }): CameraStatus {
   const supported = process.platform === 'darwin';
-  const camera = supported ? readStatus('camera') : 'unsupported';
-  const microphone = supported && allowMicrophone ? readStatus('microphone') : 'unsupported';
-  const cameraMessage = supported ? cameraGuidance(camera, app.isPackaged) : null;
-  const micMessage = supported && allowMicrophone ? microphoneGuidance(microphone, app.isPackaged) : null;
+  const camera = supported && options.allowCamera ? readStatus('camera') : 'unsupported';
+  const microphone = supported && options.allowMicrophone ? readStatus('microphone') : 'unsupported';
+  const cameraMessage = supported && options.allowCamera ? cameraGuidance(camera, app.isPackaged) : null;
+  const micMessage = supported && options.allowMicrophone ? microphoneGuidance(microphone, app.isPackaged) : null;
   const message = [cameraMessage, micMessage].filter((item): item is string => Boolean(item)).join(' ');
   return {
     supported,

@@ -35,7 +35,10 @@ describe('launch behavior', () => {
   });
 
   it('registers login launch per platform without treating a dev checkout as the installed app', () => {
-    assert.equal(planLoginRegistration({ platform: 'darwin', packaged: false, enabled: true }).kind, 'skip');
+    assert.deepEqual(planLoginRegistration({ platform: 'darwin', packaged: false, enabled: true }), {
+      kind: 'skip',
+      message: null,
+    });
     assert.deepEqual(planLoginRegistration({ platform: 'darwin', packaged: true, enabled: true }), {
       kind: 'electron',
       openAtLogin: true,
@@ -52,7 +55,7 @@ describe('launch behavior', () => {
     const entry = linuxDesktopEntry(shellQuote('/Applications/Loopframe.app/Contents/MacOS/Loopframe'));
     assert.match(entry, new RegExp(START_LOOP_ARG));
     assert.match(LOGIN_APPROVAL_MESSAGE, /System Settings/);
-    assert.match(LOGIN_LIMITATION, /does not start the computer/);
+    assert.match(LOGIN_LIMITATION, /when you log in to this account/);
   });
 });
 
